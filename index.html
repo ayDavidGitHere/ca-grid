@@ -129,6 +129,7 @@ document.addEventListener("DOMContentLoaded", function(){
     function SetUi(){
         elms = [...document.getElementsByClassName("elms")];
         elms.map((elm, index)=>{
+            elm.style.fontSize = (90/rowSize)+"px";
             elm.style.width = elm.style.height = (100/rowSize)+"%";
             elm.style.borderWidth = (1/rowSize)+"rem"
             elm.style.top = (GetRow(index)*100/rowSize)+"%";
