@@ -6,7 +6,7 @@
 <style>
 body{
     width: 100%; height: 100%;
-    background-color: #111112;
+    background-color: black;
     color: white;
 }
 #container{
@@ -34,27 +34,8 @@ document.addEventListener("DOMContentLoaded", function(){
     
     var container = document.getElementById("container");
     var elms;
-    var elmsGVals = [];
     var vals;
     var gridSize, rowSize, colSize;
-    
-    (function (){
-        rowSize = colSize = arguments[0];
-        gridSize = Math.pow(rowSize, 2);
-        vals = new Array(gridSize);
-        for(let index=0; vals.length>index; index++){
-            let val=vals[index]
-            vals[index] = Math.floor(1+Math.random()*10);
-            container.innerHTML += 
-            '<div class="elms" id="elms-'+(index+1)+'">'
-            +vals[index]
-            +'</div>'; 
-        }
-        SetUi()
-    })(3);
-    
-    
-    
     
     function GetRow(index){
         return Math.floor((index)/rowSize);
@@ -71,12 +52,34 @@ document.addEventListener("DOMContentLoaded", function(){
     
     
     
+    var CreateGrid = (function (){
+        rowSize = colSize = arguments[0];
+        gridSize = Math.pow(rowSize, 2);
+        vals = new Array(gridSize);
+        container.innerHTML = "";
+        for(let index=0; vals.length>index; index++){
+            let val=vals[index]
+            vals[index] = Math.floor(1+Math.random()*10);
+            container.innerHTML += 
+            '<div class="elms" id="elms-'+(index+1)+'">'
+            +vals[index]
+            +'</div>'; 
+        }
+        SetUi()
+    })
+    CreateGrid(3);
+    
+    
+    
     
     var process_but = document.getElementById("process-but");
     process_but.onclick = function(){   Zerolize();  }
     var typeIndex = 1;
     var logger = document.getElementById("logger");
     var loggerText = "Process: waiting ...";
+    
+    
+    
     function Zerolize(){
         let type = ["row", "col"][(typeIndex++)%2]; 
         loggerText = "Present Operation :    "+type+". "
@@ -94,22 +97,31 @@ document.addEventListener("DOMContentLoaded", function(){
         }
         }//EO for
         UpdateUi();
-        if( NonZeroRowFound("col") || NonZeroRowFound("row") )
-        setTimeout( Zerolize, 10 );
+        if( NoZero("col") || NoZero("row") ){ 
+            logger.innerText =
+            "Last Operation: "+type+"\n Auto ReZeroing...";
+            setTimeout( Zerolize, 1000 ); 
+        }
+        else{
+            logger.innerText = 
+            "Last Operation: "+type+" \n I think operation is complete."
+        }
     }
-    function NonZeroRowFound(type){
+    function NoZero(type){
+        let NoZero = false;
+        outerLoop:
         for(let i=0; colSize>i; i++){
-        let foundZero = false;
+        let ZeroFound = false;
+        innerLoop: 
         for(let j=0; rowSize>j; j++){
             let thisIndex = (type=="col"?GetIndex(i, j):GetIndex(j, i));
-            if(vals[thisIndex]==0){ foundZero = true; break; };
+            if(vals[thisIndex]==0){ ZeroFound = true; };
         }
-        if(foundZero){return false;}
+        if(!ZeroFound){ NoZero = true; break outerLoop;}
         }
-        return true;
+        return NoZero;
     }
     function UpdateUi(){
-        logger.innerText = loggerText;
         elms.map((elm, index)=>{
             elm.innerText = vals[index]
         });
@@ -137,6 +149,11 @@ document.addEventListener("DOMContentLoaded", function(){
     
     
     
+    document.getElementById("newgrid-but").onclick = function(){
+        let newGridSize = document.getElementById("gridsize-field").value;
+        CreateGrid(newGridSize)
+    }
+    
     
     
     
@@ -153,6 +170,9 @@ document.addEventListener("DOMContentLoaded", function(){
     <p id="logger">Next Operation :    Col.</p>
     <button id="process-but">Process Grid</button>
     
+    <form>
+    <input type="number" value ="3" placeholder="Enter Grid Size 2-..." id="gridsize-field">
+    <input type="button" value="Create New Grid" id="newgrid-but"></form>
 </div>
 </body>
     
